@@ -126,8 +126,17 @@ install_tanzu_cli(){
   popd
 }
 
+#TODO: start here
+#update_path(){
+#  if [ -n "$BASH_VERSION" ]; then
+#    echo 'export PATH="$PATH:"' >> ~/.bash_profile
+#  elif [ -n "$ZSH_VERSION" ]; then
+#    echo 'export MY_VAR="my value"' >> ~/.zshrc
+#  fi
+#}
+
 main(){
-  check_dependencies "curl pivnet kubectl docker code javac"
+  check_dependencies "curl pivnet kubectl code javac"
   make_required_directories
   download_files
   install_vs_code_plugins
