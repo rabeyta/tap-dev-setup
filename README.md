@@ -16,3 +16,10 @@
 
 # plugins to install
 
+# TODO
+
+* look at installing kubectl krew + some plugins, such as tree
+* document installing pivnet + obtaining token
+* refactor script into download + tar and consumption
+* update for tap 1.6 new plugin architecture
+* variables / versions are read from some yaml
