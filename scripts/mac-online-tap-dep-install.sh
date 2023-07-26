@@ -8,7 +8,11 @@ TAP_VERSION=1.5.3
 TILT_VERSION=0.33.3
 # https://github.com/buildpacks-community/kpack-cli/releases
 KPACK_CLI_VERSION=0.11.0
-
+# each TAP supports 3 versions of k8s, lets pick the middle version as it can communicate with all 3.
+# https://docs.vmware.com/en/VMware-Tanzu-Application-Platform/1.5/tap/prerequisites.html#kubernetes-cluster-requirements-3
+# find the latest kubectl release for the given k8s version
+# https://github.com/kubernetes/kubectl/tags
+KUBECTL_VERSION=1.25.12
 ## File Locations ##
 TAP_FILE_LOCATION="$HOME/tanzu/tmp/$TAP_VERSION"
 TAP_CLI_FILE_LOCATION="$HOME/tanzu/tmp/$TAP_VERSION/cli"
@@ -34,7 +38,7 @@ make_required_directories(){
   mkdir -p "$TAP_FILE_LOCATION"
   mkdir -p "$TAP_CLI_FILE_LOCATION"
   # hold carvel
-  mkdir -p "$HOME/carvel"
+  mkdir -p "$TAP_CLI_FILE_LOCATION/carvel"
 }
 
 #https://network.tanzu.vmware.com/products/tanzu-application-platform
@@ -56,7 +60,7 @@ download_tilt(){
 # carvel
 # https://carvel.dev/
 download_carvel(){
-  export K14SIO_INSTALL_BIN_DIR=$TAP_CLI_FILE_LOCATION
+  export K14SIO_INSTALL_BIN_DIR=$TAP_CLI_FILE_LOCATION/carvel
   curl -L https://carvel.dev/install.sh | bash
 }
 
@@ -78,12 +82,29 @@ download_kpack(){
   chmod +x "$TAP_CLI_FILE_LOCATION/kp"
 }
 
+download_kubectl(){
+  case $(uname -m) in
+    arm64)
+      ARCH=arm64
+      ;;
+    x86_64)
+      ARCH=amd64
+      ;;
+    *)
+      ARCH=$(uname -m)
+      ;;
+  esac
+
+  curl -fsSL "https://dl.k8s.io/release/v$KUBECTL_VERSION/bin/darwin/$ARCH/kubectl" -o "$TAP_CLI_FILE_LOCATION/kubectl"
+  chmod +x "$TAP_CLI_FILE_LOCATION/kubectl"
+}
 
 download_files(){
     download_tap_release_files
     download_tilt
     download_carvel
     download_kpack
+    download_kubectl
 }
 
 install_dependency_vs_code_plugins(){
@@ -126,7 +147,7 @@ install_tanzu_cli(){
   popd
 }
 
-#TODO: start here
+##TODO: start here
 #update_path(){
 #  if [ -n "$BASH_VERSION" ]; then
 #    echo 'export PATH="$PATH:"' >> ~/.bash_profile
@@ -138,9 +159,9 @@ install_tanzu_cli(){
 main(){
   check_dependencies "curl pivnet kubectl code javac"
   make_required_directories
-  download_files
-  install_vs_code_plugins
-  install_tanzu_cli
+#  download_files
+#  install_vs_code_plugins
+#  install_tanzu_cli
 #  install_intellij_plugin -> $ idea.sh install-plugin /path/to/plugin.zip
   # update path
 }
