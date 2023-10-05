@@ -1,5 +1,3 @@
-#!/bin/bash
-
 ## Versions we manage ##
 
 # https://network.tanzu.vmware.com/products/tanzu-application-platform
@@ -147,23 +145,31 @@ install_tanzu_cli(){
   popd
 }
 
-##TODO: start here
-#update_path(){
-#  if [ -n "$BASH_VERSION" ]; then
-#    echo 'export PATH="$PATH:"' >> ~/.bash_profile
-#  elif [ -n "$ZSH_VERSION" ]; then
-#    echo 'export MY_VAR="my value"' >> ~/.zshrc
-#  fi
-#}
+update_path(){
+  PATH_EXPORT_EXPRESSION=$(echo "export PATH=\"\$PATH:$TAP_CLI_FILE_LOCATION\"")
+  if [[ "$SHELL" == *bash* ]]; then
+    if grep -q "$TAP_CLI_FILE_LOCATION" "$HOME"/.bash_profile; then
+        echo "skipping updating bash path, as it is already present."
+    else
+        echo "$PATH_EXPORT_EXPRESSION" >> ~/.bash_profile
+    fi
+  elif [[ "$SHELL" == *zsh* ]]; then
+    if grep -q "$TAP_CLI_FILE_LOCATION" "$HOME"/.zshrc; then
+        echo "skipping updating zsh path, as it is already present."
+    else
+        echo "$PATH_EXPORT_EXPRESSION" >> ~/.zshrc
+    fi
+  fi
+}
 
 main(){
   check_dependencies "curl pivnet kubectl code javac"
   make_required_directories
-#  download_files
-#  install_vs_code_plugins
-#  install_tanzu_cli
-#  install_intellij_plugin -> $ idea.sh install-plugin /path/to/plugin.zip
-  # update path
+  download_files
+  install_vs_code_plugins
+  install_tanzu_cli
+  install_intellij_plugin -> $ idea.sh install-plugin /path/to/plugin.zip
+  update_path
 }
 
 main
